@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Git学習チーム | ポートフォリオ</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <span class="logo">GIT<em>LAB</em></span>
+      <nav>
+        <a href="#members">メンバー</a>
+        <a href="#projects">プロジェクト</a>
+        <a href="#log">活動ログ</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <h1>チームで学ぶ<br><span>Git &amp; GitHub</span></h1>
+      <p>ブランチ・コンフリクト・PRを実践で習得するための共同学習リポジトリ</p>
+    </div>
+  </section>
+
+  <!-- ===== メンバーセクション（各自が担当して編集する） ===== -->
+  <section id="members" class="section">
+    <h2 class="section-title">メンバー紹介</h2>
+    <p class="section-desc">
+      [!] <strong>ここがコンフリクト練習ゾーン！</strong>
+      各自が自分のカードを <code>feature/member-[名前]</code> ブランチで追加・編集してPRを出しましょう.
+    </p>
+    <div class="cards" id="member-cards">
+
+      <!-- メンバー1のカード（サンプル） -->
+      <div class="card">
+        <div class="card-avatar">A</div>
+        <h3>メンバーA</h3>
+        <p class="role">リーダー</p>
+        <p class="bio">Gitの管理担当.mainブランチを守ります.</p>
+        <div class="skills-tags">
+          <span>HTML</span><span>Git</span>
+        </div>
+      </div>
+
+      <!-- TODO: メンバーBがfeature/member-Bブランチで自分のカードを追加する -->
+      <!-- TODO: メンバーCがfeature/member-Cブランチで自分のカードを追加する -->
+
+    </div>
+  </section>
+
+  <!-- ===== プロジェクトセクション（機能追加練習） ===== -->
+  <section id="projects" class="section section-dark">
+    <h2 class="section-title">プロジェクト</h2>
+    <p class="section-desc">
+      [!] <strong>機能追加ブランチ練習ゾーン！</strong>
+      各自が <code>feature/project-[機能名]</code> ブランチで新しいカードを追加してみましょう.
+    </p>
+    <div class="cards">
+
+      <div class="card card-project">
+        <div class="project-number">01</div>
+        <h3>Git基礎学習</h3>
+        <p>add / commit / push / pull の基本操作をマスターする</p>
+        <div class="progress-bar"><div class="progress" style="width:100%"></div></div>
+        <span class="status done">完了</span>
+      </div>
+
+      <div class="card card-project">
+        <div class="project-number">02</div>
+        <h3>ブランチ戦略</h3>
+        <p>feature / main / develop ブランチの運用ルールを学ぶ</p>
+        <div class="progress-bar"><div class="progress" style="width:60%"></div></div>
+        <span class="status wip">進行中</span>
+      </div>
+
+      <!-- TODO: feature/project-XXX ブランチで新しいプロジェクトカードを追加 -->
+
+    </div>
+  </section>
+
+  <!-- ===== 活動ログ（rebase / merge練習） ===== -->
+  <section id="log" class="section">
+    <h2 class="section-title">活動ログ</h2>
+    <p class="section-desc">
+      [!] <strong>rebase / merge 練習ゾーン！</strong>
+      各自がログエントリを追加して,rebaseとmergeの違いを体験しましょう.
+    </p>
+    <ul class="log-list" id="activity-log">
+      <li class="log-item">
+        <span class="log-date">2025-01-01</span>
+        <span class="log-branch main-branch">main</span>
+        <span class="log-msg">リポジトリ初期化 </span>
+      </li>
+      <li class="log-item">
+        <span class="log-date">2025-01-02</span>
+        <span class="log-branch feature-branch">feature/init-design</span>
+        <span class="log-msg">デザイン追加</span>
+      </li>
+      <!-- TODO: 各自が自分の活動をここに追記する（コンフリクトを意図的に発生させる） -->
+    </ul>
+  </section>
+
+  <footer class="site-footer">
+    <p>Git学習用リポジトリ - チームで編集して,コンフリクトを楽しもう </p>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
