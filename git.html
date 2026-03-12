@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Git チーム学習ガイド</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e1a;
+  --surface: #111827;
+  --surface2: #1a2235;
+  --border: #1e2d45;
+  --accent: #38bdf8;
+  --accent2: #f472b6;
+  --green: #4ade80;
+  --yellow: #facc15;
+  --red: #f87171;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --mono: 'JetBrains Mono', monospace;
+  --body: 'Noto Sans JP', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 260px;
+  min-height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0; left: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 0;
+  z-index: 100;
+}
+.sidebar-logo {
+  font-family: var(--mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0 1.5rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--accent);
+  letter-spacing: 0.05em;
+}
+.sidebar-logo span { color: var(--text); }
+.sidebar-nav { padding: 1rem 0; flex: 1; overflow-y: auto; }
+.nav-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.75rem 1.5rem 0.35rem;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1.5rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  font-size: 0.88rem;
+  color: var(--muted);
+  border-left: 2px solid transparent;
+  text-decoration: none;
+}
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--surface2); color: var(--accent); border-left-color: var(--accent); }
+.nav-item .step-num {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.nav-item.done .step-num { background: var(--green); color: #000; }
+.nav-item.active .step-num { background: var(--accent); color: #000; }
+
+/* MAIN CONTENT */
+.main {
+  margin-left: 260px;
+  flex: 1;
+  padding: 2.5rem 3rem;
+  max-width: 900px;
+}
+
+/* STEP HEADER */
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+.step-badge {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  background: rgba(56,189,248,0.15);
+  color: var(--accent);
+  padding: 0.2em 0.8em;
+  border-radius: 99px;
+  letter-spacing: 0.08em;
+}
+.step-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.75rem;
+}
+.step-desc {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+  line-height: 1.8;
+}
+
+/* ROLE CARDS */
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.role-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+.role-card.leader { border-color: var(--yellow); }
+.role-card.memberB { border-color: var(--accent); }
+.role-card.memberC { border-color: var(--accent2); }
+.role-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+.role-name {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+.role-card.leader .role-name { color: var(--yellow); }
+.role-card.memberB .role-name { color: var(--accent); }
+.role-card.memberC .role-name { color: var(--accent2); }
+.role-task { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+
+/* CODE BLOCK */
+.code-block {
+  background: #060c18;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 1rem 0;
+  overflow: hidden;
+}
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1rem;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.code-lang {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+.copy-btn {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--border);
+  padding: 0.2em 0.7em;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+.copy-btn.copied { color: var(--green); border-color: var(--green); }
+pre {
+  padding: 1.25rem 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.8;
+  overflow-x: auto;
+  color: var(--text);
+}
+.cm { color: var(--muted); }
+.ck { color: var(--accent2); }
+.cs { color: var(--green); }
+.cn { color: var(--yellow); }
+.cc { color: var(--accent); }
+
+/* CALLOUT */
+.callout {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+.callout.tip { background: rgba(74,222,128,0.08); border-left: 3px solid var(--green); }
+.callout.warn { background: rgba(250,204,21,0.08); border-left: 3px solid var(--yellow); }
+.callout.conflict { background: rgba(248,113,113,0.08); border-left: 3px solid var(--red); }
+.callout-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.1rem; }
+
+/* CONFLICT VISUAL */
+.conflict-visual {
+  background: #060c18;
+  border: 1px solid var(--red);
+  border-radius: 8px;
+  padding: 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.9;
+  margin: 1rem 0;
+}
+.cf-head { color: var(--red); }
+.cf-sep { color: var(--muted); }
+.cf-theirs { color: var(--accent2); }
+.cf-end { color: var(--green); }
+.cf-result { color: var(--green); }
+
+/* TABLE */
+.table-wrap { overflow-x: auto; margin: 1rem 0; }
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+th {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-align: left;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+}
+td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+tr:hover td { background: var(--surface2); }
+.tag {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  padding: 0.15em 0.6em;
+  border-radius: 4px;
+}
+.tag-green { background: rgba(74,222,128,0.15); color: var(--green); }
+.tag-blue { background: rgba(56,189,248,0.15); color: var(--accent); }
+.tag-pink { background: rgba(244,114,182,0.15); color: var(--accent2); }
+
+/* CHECKLIST */
+.checklist { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0; }
+.checklist li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+  user-select: none;
+}
+.checklist li:hover { background: var(--surface2); }
+.check-box {
+  width: 18px; height: 18px;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  font-size: 0.7rem;
+}
+.checklist li.checked .check-box { background: var(--green); border-color: var(--green); }
+.checklist li.checked span { color: var(--muted); text-decoration: line-through; }
+
+/* STEP NAV */
+.step-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+.btn {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: none;
+  letter-spacing: 0.05em;
+}
+.btn-prev { background: var(--surface2); color: var(--muted); }
+.btn-prev:hover { color: var(--text); }
+.btn-next { background: var(--accent); color: #000; font-weight: 700; }
+.btn-next:hover { background: #7dd3fc; }
+.btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* SECTIONS */
+.content-section { display: none; }
+.content-section.active { display: block; }
+
+/* DIVIDER */
+.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+/* BRANCH VISUAL */
+.branch-vis {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  line-height: 2;
+  background: #060c18;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin: 1rem 0;
+  color: var(--muted);
+}
+.b-main { color: var(--green); }
+.b-feat { color: var(--accent); }
+.b-feat2 { color: var(--accent2); }
+
+/* PROGRESS */
+.progress-bar-outer {
+  background: var(--border);
+  height: 4px;
+  border-radius: 2px;
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+.progress-bar-inner {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+@media (max-width: 768px) {
+  .sidebar { width: 100%; min-height: auto; position: relative; flex-direction: row; flex-wrap: wrap; }
+  .main { margin-left: 0; padding: 1.5rem; }
+  .role-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">GIT<span>TEAM</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">学習ステップ</div>
+    <a class="nav-item active" onclick="showStep(0)" href="#">
+      <span class="step-num">1</span> 準備・クローン
+    </a>
+    <a class="nav-item" onclick="showStep(1)" href="#">
+      <span class="step-num">2</span> ブランチ作成
+    </a>
+    <a class="nav-item" onclick="showStep(2)" href="#">
+      <span class="step-num">3</span> PR・レビュー
+    </a>
+    <a class="nav-item" onclick="showStep(3)" href="#">
+      <span class="step-num">4</span> コンフリクト解消
+    </a>
+    <a class="nav-item" onclick="showStep(4)" href="#">
+      <span class="step-num">5</span> rebase vs merge
+    </a>
+    <a class="nav-item" onclick="showStep(5)" href="#">
+      <span class="step-num">6</span> チェックリスト
+    </a>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="progress-bar-outer">
+    <div class="progress-bar-inner" id="progressBar" style="width:16%"></div>
+  </div>
+
+  <!-- STEP 1 -->
+  <section class="content-section active" id="step-0">
+    <div class="step-header">
+      <span class="step-badge">STEP 1 / 6</span>
+    </div>
+    <h1 class="step-title">準備・リポジトリのセットアップ</h1>
+    <p class="step-desc">まずリーダー(A)がGitHubにリポジトリを作り、メンバー全員がクローンします。</p>
+
+    <div class="role-grid">
+      <div class="role-card leader">
+        <div class="role-icon">👑</div>
+        <div class="role-name">リーダー A</div>
+        <div class="role-task">GitHubでリポジトリ作成・ファイルをpush・招待を送る</div>
+      </div>
+      <div class="role-card memberB">
+        <div class="role-icon">💻</div>
+        <div class="role-name">メンバー B</div>
+        <div class="role-task">招待を承認してリポジトリをクローンする</div>
+      </div>
+      <div class="role-card memberC">
+        <div class="role-icon">🎨</div>
+        <div class="role-name">メンバー C</div>
+        <div class="role-task">招待を承認してリポジトリをクローンする</div>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:0.5rem; font-size:1rem;">(1) リーダーA：GitHubにpush</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">BASH</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+      <pre><span class="cm"># ダウンロードしたgit-learningフォルダで実行</span>
+<span class="ck">cd</span> git-learning
+<span class="ck">git</span> init
+<span class="ck">git</span> add .
+<span class="ck">git</span> commit -m <span class="cs">"feat: 初期セットアップ"</span>
+<span class="ck">git</span> remote add origin https://github.com/<span class="cn">[あなたのID]</span>/git-learning.git
+<span class="ck">git</span> push -u origin main</pre>
+    </div>
+
+    <h3 style="margin-bottom:0.5rem; font-size:1rem; margin-top:1.5rem;">(2) B・C：クローンして初期設定</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">BASH</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+      <pre><span class="ck">git</span> clone https://github.com/<span class="cn">[リーダーのID]</span>/git-learning.git
+<span class="ck">cd</span> git-learning
+<span class="ck">git</span> config user.name <span class="cs">"自分の名前"</span>
+<span class="ck">git</span> config user.email <span class="cs">"メールアドレス"</span></pre>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <div>GitHubの <strong>Settings → Collaborators</strong> からメンバーを招待できます。招待されたメンバーはメールかGitHub通知で承認してください。</div>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="content-section" id="step-1">
+    <div class="step-header"><span class="step-badge">STEP 2 / 6</span></div>
+    <h1 class="step-title">ブランチ作成・編集・push</h1>
+    <p class="step-desc">各メンバーが自分のブランチを作り、index.html に自分のカードを追加します。<strong>mainには直接pushしません。</strong></p>
+
+    <div class="branch-vis">
+<span class="b-main">main</span>  *-------------------------------------&gt;
+                  \                          \
+<span class="b-feat">feature/member-B</span>  *--*--*     (B が作業中)
+                           \
+<span class="b-feat2">feature/member-C</span>          *--*    (C が作業中)
+    </div>
+
+    <h3 style="margin-bottom:0.5rem; font-size:1rem;">メンバーBの場合</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">BASH</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+      <pre><span class="cm"># ブランチを作成して切り替え</span>
+<span class="ck">git</span> checkout -b <span class="cs">feature/member-B</span>
+
+<span class="cm"># index.html を編集（メンバーカードを追加）</span>
+<span class="cm"># ↓ このHTMLを「TODO: メンバーBが...」のコメントの下に追加</span></pre>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">HTML</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+      <pre><span class="ck">&lt;div</span> <span class="cn">class</span>=<span class="cs">"card"</span><span class="ck">&gt;</span>
+  <span class="ck">&lt;div</span> <span class="cn">class</span>=<span class="cs">"card-avatar"</span><span class="ck">&gt;</span>B<span class="ck">&lt;/div&gt;</span>
+  <span class="ck">&lt;h3&gt;</span>メンバーB<span class="ck">&lt;/h3&gt;</span>
+  <span class="ck">&lt;p</span> <span class="cn">class</span>=<span class="cs">"role"</span><span class="ck">&gt;</span>フロントエンド担当<span class="ck">&lt;/p&gt;</span>
+  <span class="ck">&lt;p</span> <span class="cn">class</span>=<span class="cs">"bio"</span><span class="ck">&gt;</span>自己紹介を書こう<span class="ck">&lt;/p&gt;</span>
+  <span class="ck">&lt;div</span> <span class="cn">class</span>=<span class="cs">"skills-tags"</span><span class="ck">&gt;</span>
+    <span class="ck">&lt;span&gt;</span>CSS<span class="ck">&lt;/span&gt;&lt;span&gt;</span>JavaScript<span class="ck">&lt;/span&gt;</span>
+  <span class="ck">&lt;/div&gt;</span>
+<span class="ck">&lt;/div&gt;</span></pre>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">BASH</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+      <pre><span class="ck">git</span> add index.html
+<span class="ck">git</span> commit -m <span class="cs">"feat: メンバーBのカードを追加"</span>
+<span class="ck">git</span> push origin <span class="cs">feature/member-B</span></pre>
+    </div>
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <div>メンバーCも同様に <code style="font-family:var(--mono);background:rgba(255,255,255,0.07);padding:0.1em 0.4em;border-radius:3px;">feature/member-C</code> ブランチで作業します。アバターは「C」、色は変えてみましょう。</div>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="content-section" id="step-2">
+    <div class="step-header"><span class="step-badge">STEP 3 / 6</span></div>
+    <h1 class="step-title">プルリクエスト・レビュー</h1>
+    <p class="step-desc">pushしたブランチをGitHub上でPRにして、リーダーにレビューしてもらいます。</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th>誰が</th><th>何をする</th><th>場所</th>
+        </tr>
+        <tr>
+          <td><span class="tag tag-blue">B / C</span></td>
+          <td>GitHub上でPRを作成（base: main ← compare: feature/自分）</td>
+          <td>GitHub Web</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-green">A（リーダー）</span></td>
+          <td>コードを確認してコメントを入れる（"Changes requested"）</td>
+          <td>GitHub Web</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-blue">B / C</span></td>
+          <td>コメントに対応して追加コミットをpush</td>
+          <td>ターミナル</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-green">A（リーダー）</span></td>
+          <td>"Approve" して "Merge pull request"</td>
+          <td>GitHub Web</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <div><strong>レビューのポイント：</strong> typo・書き方の統一・コンフリクットマーカーが残っていないか確認しましょう。</div>
+    </div>
+
+    <h3 style="margin-bottom:0.5rem; font-size:1rem; margin-top:1.5rem;">レビュー後の修正コミット方法</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">BASH</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+      <pre><span class="cm"># ファイルを修正後</span>
+<span class="ck">git</span> add index.html
+<span class="ck">git</span> commit -m <span class="cs">"fix: レビュー指摘を修正"</span>
+<span class="ck">git</span> push origin <span class="cs">feature/member-B</span>
+<span class="cm"># → PRに自動的に追加される</span></pre>
+    </div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="content-section" id="step-3">
+    <div class="step-header"><span class="step-badge">STEP 4 / 6</span></div>
+    <h1 class="step-title">コンフリクトを意図的に発生させて解消する</h1>
+    <p class="step-desc">BとCが<strong>同じ行を同時に編集</strong>することで、コンフリクトを体験します。これが一番重要な練習です！</p>
+
+    <div class="callout conflict">
+      <span class="callout-icon">⚡</span>
+      <div><strong>シナリオ：</strong> Bは &lt;title&gt; を「Git学習 | チームB」に変更。Cは同じ行を「Git練習 | チームC」に変更。Bのマージ後にCをマージしようとするとコンフリクト発生！</div>
+    </div>
+
+    <h3 style="margin-bottom:0.5rem; font-size:1rem;">コンフリクト発生時の画面</h3>
+    <div class="conflict-visual">
+<span class="cf-head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD (main)</span>
+  &lt;title&gt;<span class="cc">Git学習 | チームB</span>&lt;/title&gt;
+<span class="cf-sep">=======</span>
+  &lt;title&gt;<span class="cf-theirs">Git練習 | チームC</span>&lt;/title&gt;
+<span class="cf-end">&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/member-C</span>
+    </div>
+
+    <h3 style="margin-bottom:0.5rem; font-size:1rem; margin-top:1.5rem;">解消手順</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">BASH</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+      <pre><span class="cm"># 1. コンフリクトファイルを確認</span>
+<span class="ck">git</span> status
+
+<span class="cm"># 2. エディタでファイルを開き、マーカーを見つける</span>
+<span class="cm">#    (&lt;&lt;&lt;&lt;&lt;&lt;&lt; / ======= / &gt;&gt;&gt;&gt;&gt;&gt;&gt;)</span>
+
+<span class="cm"># 3. 話し合って1つに決め、マーカーを削除</span>
+<span class="cm">#    例：&lt;title&gt;Git学習 | チームで習得&lt;/title&gt;</span>
+
+<span class="cm"># 4. 解消後にコミット</span>
+<span class="ck">git</span> add index.html
+<span class="ck">git</span> commit -m <span class="cs">"fix: タイトルのコンフリクトを解消"</span></pre>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div>コンフリクト解消後のファイルに <strong>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</strong> や <strong>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</strong> が残っていないか必ず確認しましょう！</div>
+    </div>
+
+    <h3 style="margin-bottom:0.5rem; font-size:1rem; margin-top:1.5rem;">練習できるコンフリクトパターン</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>ファイル</th><th>場所</th><th>難易度</th></tr>
+        <tr><td>index.html</td><td>&lt;title&gt;タグ</td><td><span class="tag tag-green">易</span></td></tr>
+        <tr><td>index.html</td><td>メンバーカードの順番</td><td><span class="tag tag-blue">中</span></td></tr>
+        <tr><td>css/style.css</td><td>--color-accent の値</td><td><span class="tag tag-blue">中</span></td></tr>
+        <tr><td>js/main.js</td><td>アニメーション速度</td><td><span class="tag tag-pink">難</span></td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- STEP 5 -->
+  <section class="content-section" id="step-4">
+    <div class="step-header"><span class="step-badge">STEP 5 / 6</span></div>
+    <h1 class="step-title">rebase と merge の違いを体験</h1>
+    <p class="step-desc">同じ結果でも履歴の形が変わります。<code style="font-family:var(--mono);background:rgba(255,255,255,0.07);padding:0.1em 0.4em;border-radius:3px;">git log --graph</code> で視覚的に確認しましょう。</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th></th><th>merge</th><th>rebase</th></tr>
+        <tr><td>履歴の形</td><td>ひし形（分岐が残る）</td><td>一直線</td></tr>
+        <tr><td>マージコミット</td><td>自動で作られる</td><td>作られない</td></tr>
+        <tr><td>使いどき</td><td>チームの共有ブランチ</td><td>自分の作業ブランチ整理</td></tr>
+        <tr><td>force push</td><td>不要</td><td>必要になる場合あり</td></tr>
+      </table>
+    </div>
+
+    <h3 style="margin-bottom:0.5rem; font-size:1rem;">merge の場合</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">BASH</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+      <pre><span class="ck">git</span> checkout main
+<span class="ck">git</span> merge feature/member-B
+<span class="cm"># → "Merge branch 'feature/member-B'" コミットが作られる</span>
+<span class="ck">git</span> log --oneline --graph --all</pre>
+    </div>
+
+    <h3 style="margin-bottom:0.5rem; font-size:1rem; margin-top:1.5rem;">rebase の場合</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">BASH</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+      <pre><span class="ck">git</span> checkout feature/member-C
+<span class="ck">git</span> rebase main
+<span class="cm"># → CのコミットがmainのHEADの後ろに"移植"される</span>
+<span class="ck">git</span> log --oneline --graph --all
+<span class="cm"># → 履歴が一直線になっているのを確認！</span></pre>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div>rebase後にpushするときは <strong>git push --force-with-lease</strong> が必要な場合があります。チームで共有しているブランチへのrebaseは避けましょう。</div>
+    </div>
+  </section>
+
+  <!-- STEP 6 -->
+  <section class="content-section" id="step-5">
+    <div class="step-header"><span class="step-badge">STEP 6 / 6</span></div>
+    <h1 class="step-title">学習チェックリスト</h1>
+    <p class="step-desc">全項目にチェックが入ったら学習完了です！クリックでチェックできます。</p>
+
+    <h3 style="margin-bottom:0.5rem; font-size:0.9rem; color:var(--muted); letter-spacing:0.08em; text-transform:uppercase; font-family:var(--mono);">ブランチ</h3>
+    <ul class="checklist">
+      <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span>git checkout -b でブランチを作成できた</span></li>
+      <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span>git branch -a で全ブランチを確認できた</span></li>
+      <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span>不要なブランチを git branch -d で削除できた</span></li>
+    </ul>
+
+    <h3 style="margin-bottom:0.5rem; font-size:0.9rem; color:var(--muted); letter-spacing:0.08em; text-transform:uppercase; font-family:var(--mono); margin-top:1.5rem;">コンフリクト</h3>
+    <ul class="checklist">
+      <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span>コンフリクトが発生したファイルを特定できた</span></li>
+      <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span>&lt;&lt;&lt;&lt;&lt;&lt;&lt; ======= &gt;&gt;&gt;&gt;&gt;&gt;&gt; マーカーの意味がわかった</span></li>
+      <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span>コンフリクトを解消してコミットできた</span></li>
+    </ul>
+
+    <h3 style="margin-bottom:0.5rem; font-size:0.9rem; color:var(--muted); letter-spacing:0.08em; text-transform:uppercase; font-family:var(--mono); margin-top:1.5rem;">プルリクエスト</h3>
+    <ul class="checklist">
+      <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span>GitHubでPRを作成できた</span></li>
+      <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span>レビューコメントを入れた / 対応した</span></li>
+      <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span>PRをマージできた</span></li>
+    </ul>
+
+    <h3 style="margin-bottom:0.5rem; font-size:0.9rem; color:var(--muted); letter-spacing:0.08em; text-transform:uppercase; font-family:var(--mono); margin-top:1.5rem;">rebase / merge</h3>
+    <ul class="checklist">
+      <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span>git log --graph で履歴の違いを確認できた</span></li>
+      <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span>rebaseとmergeをそれぞれ1回以上実行できた</span></li>
+      <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span>どちらをどんな場面で使うか説明できる</span></li>
+    </ul>
+
+    <div class="callout tip" style="margin-top:2rem;">
+      <span class="callout-icon">🎉</span>
+      <div>お疲れさまでした！全部チェックできたら、チームでのGit運用の基本はバッチリです。次のステップは <strong>GitHub Actions（CI/CD）</strong> や <strong>git stash</strong>、<strong>cherry-pick</strong> に挑戦してみましょう！</div>
+    </div>
+  </section>
+
+  <!-- NAV BUTTONS -->
+  <div class="step-nav">
+    <button class="btn btn-prev" id="prevBtn" onclick="changeStep(-1)" disabled>← 前へ</button>
+    <button class="btn btn-next" id="nextBtn" onclick="changeStep(1)">次へ →</button>
+  </div>
+</main>
+
+<script>
+let current = 0;
+const total = 6;
+
+function showStep(n) {
+  document.querySelectorAll('.content-section').forEach((s,i) => {
+    s.classList.toggle('active', i === n);
+  });
+  document.querySelectorAll('.nav-item').forEach((a,i) => {
+    a.classList.remove('active');
+    if (i < n) a.classList.add('done');
+    if (i === n) a.classList.add('active');
+  });
+  current = n;
+  document.getElementById('prevBtn').disabled = n === 0;
+  document.getElementById('nextBtn').disabled = n === total - 1;
+  document.getElementById('nextBtn').textContent = n === total - 1 ? '完了！' : '次へ →';
+  document.getElementById('progressBar').style.width = ((n + 1) / total * 100) + '%';
+  window.scrollTo(0, 0);
+}
+
+function changeStep(dir) {
+  const next = current + dir;
+  if (next >= 0 && next < total) showStep(next);
+}
+
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+}
+
+function copyCode(btn) {
+  const code = btn.closest('.code-block').querySelector('pre').innerText;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'コピー完了!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+</body>
+</html>
